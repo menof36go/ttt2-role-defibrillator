@@ -125,6 +125,11 @@ function SWEP:PrimaryAttack()
 
     local ply = player.GetByUniqueID(tr.Entity.uqid)
 
+    if ply:IsActive() and not (SpecDM and not ply:IsGhost()) then
+      self:FireError("FAILURE - SUBJECT ALIVE")
+      return
+    end
+
     if IsValid(ply) then
       self:BeginDefib(ply, tr.Entity)
     else
