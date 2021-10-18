@@ -144,7 +144,7 @@ end
 function SWEP:SelectRole()
   if TTT2 then
     if !GetConVar("ttt_rdef_baseRolesOnly"):GetBool() then
-      return self.Owner:GetSubRole()
+      return self.Owner:GetSubRole(), self.Owner:GetTeam()
     else
       local team = self.Owner:GetTeam()
       if team == "innocents" then -- This includes detectives
@@ -178,8 +178,11 @@ function SWEP:BeginDefib(ply, ragdoll)
   end
 
   local role = nil
+  local team = nil
   if roles then
+    local ownerteam = tostring(self.Owner:GetTeam())
     role = string.upper(roles.GetByIndex(self:SelectRole()).name)
+    team = string.upper(ownerteam)
   else
     local sr = self:SelectRole()
     if (sr == 0) then
@@ -192,7 +195,7 @@ function SWEP:BeginDefib(ply, ragdoll)
       role = "UNKNOWN"
     end
   end
-  self:SetStateText("DEFIBRILLATING AS " .. role .. " - "..string.upper(ply:Name()))
+  self:SetStateText("DEFIBRILLATING AS " .. role .. " IN TEAM " .. team .. " - " .. string.upper(ply:Name()))
   self:SetDefibState(STATE_PROGRESS)
   self:SetDefibStartTime(CurTime())
 
