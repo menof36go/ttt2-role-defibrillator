@@ -147,14 +147,14 @@ function SWEP:SelectRole()
       return self.Owner:GetSubRole(), self.Owner:GetTeam()
     else
       local team = self.Owner:GetTeam()
-      if team == "innocents" then -- This includes detectives
-        return ROLE_INNOCENT
+      if team == "innocents" then
+        return ROLE_INNOCENT, TEAM_INNOCENT
       elseif team == "traitors" then
-        return ROLE_TRAITOR
-      elseif team == "noteam" then -- This is the unknown team
-        return ROLE_INNOCENT
+        return ROLE_TRAITOR, TEAM_TRAITOR
+      elseif team == "nones" then
+        return ROLE_INNOCENT, TEAM_NONE
       else
-        return self.Owner:GetBaseRole()
+        return self.Owner:GetBaseRole(), self.Owner:GetTeam()
       end
     end
   else
