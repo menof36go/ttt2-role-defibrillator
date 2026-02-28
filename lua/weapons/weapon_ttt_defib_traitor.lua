@@ -125,17 +125,17 @@ function SWEP:PrimaryAttack()
 
     local ply = player.GetByUniqueID(tr.Entity.uqid)
 
+    if not IsValid(ply) then
+      self:FireError("FAILURE - SUBJECT BRAINDEAD")
+      return
+    end
+
     if ply:IsActive() then
       self:FireError("FAILURE - SUBJECT ALIVE")
       return
     end
 
-    if IsValid(ply) then
-      self:BeginDefib(ply, tr.Entity)
-    else
-      self:FireError("FAILURE - SUBJECT BRAINDEAD")
-      return
-    end
+    self:BeginDefib(ply, tr.Entity)
   else
     self:FireError("FAILURE - INVALID TARGET")
   end
