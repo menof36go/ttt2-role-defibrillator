@@ -107,8 +107,8 @@ end
 
 
 function SWEP:PrimaryAttack()
-  if CLIENT then 
-    return 
+  if CLIENT then
+    return
   end
 
   local tr = util.TraceLine({
@@ -117,28 +117,73 @@ function SWEP:PrimaryAttack()
     filter = self:GetOwner()
   })
 
-  if IsValid(tr.Entity) and tr.Entity:GetClass() == "prop_ragdoll" then
-    if not tr.Entity.uqid then
-      self:FireError("FAILURE - SUBJECT BRAINDEAD")
+  if not (IsValid(tr.Entity) and tr.Entity:GetClass() == "prop_ragdoll") then
+    self:FireError("FAILURE - INVALID TARGET")
+    return
+  end
+
+  local ent = tr.Entity
+  local ply = nil
+
+  if CORPSE and CORPSE.IsValidBody and CORPSE.GetPlayer then
+    if not CORPSE.IsValidBody(ent) then
+      self:FireError("FAILURE - INVALID TARGET")
       return
     end
 
-    local ply = player.GetByUniqueID(tr.Entity.uqid)
+    ply = CORPSE.GetPlayer(ent)
 
     if not IsValid(ply) then
+      self:FireError("FAILURE - SUBJECT DISCONNECTED")
+      return
+    end
+
+    if not CORPSE.IsRealPlayerCorpse(ent) then
+      self:FireError("FAILURE - FAKE CORPSE")
+      return
+    end
+
+    if not GetConVar("ttt_rdef_reviveBrainDead"):GetBool() and CORPSE.WasHeadshot and CORPSE.WasHeadshot(ent) then
       self:FireError("FAILURE - SUBJECT BRAINDEAD")
       return
     end
-
-    if ply:IsActive() then
-      self:FireError("FAILURE - SUBJECT ALIVE")
+  else
+    if not ent.uqid then
+      self:FireError("FAILURE - INVALID TARGET")
       return
     end
 
-    self:BeginDefib(ply, tr.Entity)
-  else
-    self:FireError("FAILURE - INVALID TARGET")
+    ply = player.GetByUniqueID(ent.uqid)
+
+    if not IsValid(ply) then
+      self:FireError("FAILURE - SUBJECT DISCONNECTED")
+      return
+    end
+
+    if ply == self:GetOwner() then
+      self:FireError("FAILURE - FAKE CORPSE")
+      return
+    end
+
+    local wasHeadshot = false
+    if ent.was_headshot or ent.headshot then
+      wasHeadshot = true
+    elseif ent.GetNWBool and (ent:GetNWBool("was_headshot", false) or ent:GetNWBool("headshot", false)) then
+      wasHeadshot = true
+    end
+
+    if not GetConVar("ttt_rdef_reviveBrainDead"):GetBool() and wasHeadshot then
+      self:FireError("FAILURE - SUBJECT BRAINDEAD")
+      return
+    end
   end
+
+  if ply:IsActive() then
+    self:FireError("FAILURE - SUBJECT ALIVE")
+    return
+  end
+
+  self:BeginDefib(ply, ent)
 end
 
 function SWEP:SelectRole()
@@ -243,7 +288,12 @@ function SWEP:Think()
     end
 
     if not (IsValid(self.TargetPly) and IsValid(self.TargetRagdoll)) then
-      self:FireError("ERROR - SUBJECT BRAINDEAD")
+      if not IsValid(self.TargetPly) then
+        self:FireError("FAILURE - SUBJECT DISCONNECTED")
+      else
+        self:FireError("ERROR - TARGET LOST")
+      end
+
       return
     end
 
