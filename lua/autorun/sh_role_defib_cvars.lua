@@ -19,6 +19,7 @@ end
 local cg = ConvarGroup("RoleDefib", "Role Defibrillator")
 Convar(cg, false, "ttt_rdef_healthOnRespawn", 100, {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Amount of health the respawned player has after respawning", "int", 1, 400)
 Convar(cg, false, "ttt_rdef_defibTime", 5, {FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_REPLICATED}, "Amount of time the defibrillation takes", "int", 1, 100)
+Convar(cg, false, "ttt_rdef_reviveBrainDead", 0, {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Whether to allow reviving brain dead players", "bool")
 Convar(cg, true, "ttt_rdef_baseRolesOnly", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Instead of respawning as a specific subrole respawn as the baserole of that subrole", "bool")
 Convar(cg, true, "ttt_rdef_accessShop", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Grant access to the shop to roles that usually have shop access", "bool")
 --
